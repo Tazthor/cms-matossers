@@ -1,0 +1,3 @@
+Per deployar en dev
+- Fer una build --> yarn build
+- Deployar hosting --> firebase deploy --only hosting
