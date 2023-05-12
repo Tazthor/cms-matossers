@@ -48,14 +48,28 @@ const firebaseConfig = {
 }; */
 
 type DadesColla = {
+  ordre: number;
   icon: string;
   item: string;
   data: string;
 };
 
+type Junta = {
+  ordre: number;
+  image: string;
+  nom: string;
+  equip: string;
+  carrec: string;
+};
+
 type Usuaris = {
   email: string;
   role: string;
+};
+
+type Musics = {
+  text: string;
+  image: string;
 };
 
 type Actuacions = {
@@ -64,6 +78,7 @@ type Actuacions = {
   lloc: string;
   data: Date;
   colles: string[];
+  llista: string;
   resultat: string[];
   galeria: string;
 };
@@ -126,6 +141,37 @@ const usuarisCollection = buildCollection<Usuaris>({
   }
 })
 
+const musicsCollection = buildCollection<Musics>({
+  name: "Pàgina de Músics",
+  singularName: "Músic",
+  path: "musics",
+  permissions: ({ authController }) => ({
+    edit: true,
+    create: true,
+    delete: false,
+  }),
+  properties: {
+    text: buildProperty({
+      dataType: "string",
+      name: "Text",
+      markdown: true,
+      validation: { required: true },
+    }),
+    image: buildProperty({
+      dataType: "string",
+      name: "Imatge",
+      storage: {
+        mediaType: "image",
+        storagePath: "images/pages",
+        acceptedFiles: ["image/*"],
+        metadata: {
+          cacheControl: "max-age=1000000",
+        },
+      },
+  }),
+}
+})
+
 const dadesCollaCollection = buildCollection<DadesColla>({
   name: "Dades Colla",
   singularName: "Dada",
@@ -136,6 +182,16 @@ const dadesCollaCollection = buildCollection<DadesColla>({
     delete: false,
   }),
   properties: {
+    ordre: {
+      name: "Ordre",
+      validation: {
+        required: true,
+        min: 0,
+        max: 1000,
+      },
+      description: "Per ordenar le dades a la web",
+      dataType: "number",
+    },
     icon: buildProperty({
       dataType: "string",
       name: "Image",
@@ -159,6 +215,61 @@ const dadesCollaCollection = buildCollection<DadesColla>({
     },
     data: {
       name: "Text",
+      validation: { required: true },
+      dataType: "string",
+    },
+  },
+});
+
+const juntaCollection = buildCollection<Junta>({
+  name: "Juntes",
+  singularName: "junta",
+  path: "juntes",
+  permissions: ({ authController }) => ({
+    edit: true,
+    create: true,
+    delete: false,
+  }),
+  properties: {
+    ordre: {
+      name: "Ordre",
+      validation: {
+        required: true,
+        min: 0,
+        max: 1000,
+      },
+      description: "Per ordenar le dades a la web",
+      dataType: "number",
+    },
+    image: buildProperty({
+      dataType: "string",
+      name: "Image",
+      storage: {
+        mediaType: "image",
+        storagePath: "images/junta",
+        acceptedFiles: ["image/*"],
+        metadata: {
+          cacheControl: "max-age=1000000",
+        },
+      },
+    }),
+    nom: {
+      name: "Nom",
+      validation: { required: true },
+      dataType: "string",
+    },
+    equip: buildProperty({
+      dataType: "string",
+      name: "Equip",
+      enumValues: {
+        president: "President",
+        cap: "Cap de colla",
+        administrativa: "Junta administrativa",
+        tecnica: "Junta tècnica",
+      }
+    }),
+    carrec: {
+      name: "Càrrec",
       validation: { required: true },
       dataType: "string",
     },
@@ -331,6 +442,11 @@ const actuacionsCollection = buildCollection<Actuacions>({
       of: {
         dataType: "string",
       },
+    },    
+    llista: {
+      name: "Lloc",
+      validation: { required: false },
+      dataType: "string",
     },
     resultat: {
       name: "Resultats",
@@ -372,7 +488,7 @@ export default function App() {
       <FirebaseCMSApp
         name={"Matossers de Molins de Rei"}
         authentication={myAuthenticator}
-        collections={[dadesCollaCollection, actuacionsCollection, usuarisCollection]}
+        collections={[dadesCollaCollection, actuacionsCollection, usuarisCollection, juntaCollection, musicsCollection]}
         firebaseConfig={firebaseConfig}
       />
     </div>
