@@ -119,7 +119,7 @@ const usuarisCollection = buildCollection<Usuaris>({
   permissions: ({ authController }) => ({
     edit: true,
     create: true,
-    delete: false,
+    delete: true,
   }),
   properties: {
     email: {
@@ -228,7 +228,7 @@ const juntaCollection = buildCollection<Junta>({
   permissions: ({ authController }) => ({
     edit: true,
     create: true,
-    delete: false,
+    delete: true,
   }),
   properties: {
     ordre: {
