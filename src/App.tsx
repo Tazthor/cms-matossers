@@ -10,6 +10,10 @@ import {
   MarkdownProps,
 } from "firecms";
 
+import { collection, query, where, getDocs } from "firebase/firestore";
+import { initializeApp } from "firebase/app";
+import { getFirestore } from "firebase/firestore";
+
 import "typeface-rubik";
 import "@fontsource/ibm-plex-mono";
 
@@ -24,28 +28,8 @@ const firebaseConfig = {
   measurementId: "G-Y1L5YSPM4B",
 };
 
-/* const locales = {
-  "en-US": "English (United States)",
-  "es-ES": "Spanish (Spain)",
-  "de-DE": "German",
-};
- */
-/* type Product = {
-  name: string;
-  price: number;
-  status: string;
-  published: boolean;
-  related_products: EntityReference[];
-  main_image: string;
-  tags: string[];
-  description: string;
-  categories: string[];
-  publisher: {
-    name: string;
-    external_id: string;
-  };
-  expires_on: Date;
-}; */
+const app = initializeApp(firebaseConfig);
+const db = getFirestore(app);
 
 type DadesColla = {
   ordre: number;
@@ -67,9 +51,23 @@ type Usuaris = {
   role: string;
 };
 
+type Recurs = {
+  ordre: number;
+  nom: string;
+  descripcio: string;
+  doc: string;
+  categoria: string;
+};
+
 type Musics = {
   text: string;
   image: string;
+};
+
+type Xat = {
+  nom: string;
+  data: Date;
+  msg: string;
 };
 
 type Actuacions = {
@@ -83,34 +81,142 @@ type Actuacions = {
   galeria: string;
 };
 
-/* const localeCollection = buildCollection({
-  path: "locale",
-  customId: locales,
-  name: "Locales",
-  singularName: "Locales",
+type Socis = {
+  ordre: number;
+  tipus: string;
+  descripcio: string;
+  quota: number;
+  url: string;
+};
+
+const socisCollection = buildCollection<Socis>({
+  name: "Quotes de soci",
+  singularName: "quota",
+  path: "socis",
+  permissions: ({ authController }) => ({
+    edit: true,
+    create: true,
+    delete: true,
+  }),
   properties: {
-    name: {
-      name: "Title",
+    ordre: {
+      name: "Ordre",
+      validation: {
+        required: true,
+        min: 0,
+        max: 1000,
+      },
+      description: "Per ordenar le dades a la web",
+      dataType: "number",
+    },
+    tipus: {
+      name: "Tipus",
       validation: { required: true },
       dataType: "string",
     },
-    selectable: {
-      name: "Selectable",
-      description: "Is this locale selectable",
-      dataType: "boolean",
-    },
-    video: {
-      name: "Video",
-      dataType: "string",
+    descripcio: {
+      name: "Descripció",
       validation: { required: false },
-      storage: {
-        storagePath: "videos",
-        acceptedFiles: ["video/*"],
+      dataType: "string",
+    },
+    quota: {
+      name: "Quota",
+      validation: {
+        required: true,
+        min: 0,
+        max: 1000,
       },
+      dataType: "number",
+    },
+    url: {
+      name: "Enllaç de pagament",
+      validation: { required: true },
+      dataType: "string",
     },
   },
 });
- */
+
+const xatCollection = buildCollection<Xat>({
+  name: "Xat",
+  singularName: "Xat",
+  path: "xat",
+  permissions: ({ authController }) => ({
+    edit: true,
+    create: true,
+    delete: true,
+  }),
+  properties: {
+    nom: {
+      name: "Nom",
+      validation: { required: true },
+      dataType: "string",
+    },
+    data: {
+      name: "Data",
+      validation: {
+        required: true,
+      },
+      dataType: "date",
+    },
+    msg: {
+      name: "Missatge",
+      validation: { required: true },
+      dataType: "string",
+    },
+  },
+});
+
+const recursCollection = buildCollection<Recurs>({
+  name: "Recursos",
+  singularName: "Recurs",
+  path: "recurs",
+  permissions: ({ authController }) => ({
+    edit: true,
+    create: true,
+    delete: true,
+  }),
+  properties: {
+    ordre: {
+      name: "Ordre",
+      validation: {
+        required: true,
+        min: 0,
+        max: 1000,
+      },
+      description: "Per ordenar le dades a la web",
+      dataType: "number",
+    },
+    nom: {
+      name: "Nom del fitxer",
+      validation: { required: true },
+      dataType: "string",
+    },
+    descripcio: {
+      name: "Descripció (opcional)",
+      validation: { required: false },
+      dataType: "string",
+    },
+    doc: buildProperty({
+      dataType: "string",
+      name: "Document",
+      storage: {
+        mediaType: "image",
+        storagePath: "docs/",
+      },
+      validation: { required: true },
+    }),
+    categoria: buildProperty({
+      dataType: "string",
+      name: "Categoria",
+      enumValues: {
+        administrativa: "Documentació administrativa",
+        tecnica: "Documentació tècnica",
+        general: "Documents generals",
+      },
+      validation: { required: true },
+    }),
+  },
+});
 
 const usuarisCollection = buildCollection<Usuaris>({
   name: "Usuaris",
@@ -132,14 +238,14 @@ const usuarisCollection = buildCollection<Usuaris>({
       dataType: "string",
       name: "Rols",
       enumValues: {
-          admin: "Administrador",
-          junta: "Juntes administrativa i tècnica",
-          casteller: "Casteller/a",
-          public: "Sense permisos"
-      }
-    })
-  }
-})
+        admin: "Administrador",
+        junta: "Juntes administrativa i tècnica",
+        casteller: "Casteller/a",
+        public: "Sense permisos",
+      },
+    }),
+  },
+});
 
 const musicsCollection = buildCollection<Musics>({
   name: "Pàgina de Músics",
@@ -147,7 +253,7 @@ const musicsCollection = buildCollection<Musics>({
   path: "musics",
   permissions: ({ authController }) => ({
     edit: true,
-    create: true,
+    create: false,
     delete: false,
   }),
   properties: {
@@ -168,9 +274,9 @@ const musicsCollection = buildCollection<Musics>({
           cacheControl: "max-age=1000000",
         },
       },
-  }),
-}
-})
+    }),
+  },
+});
 
 const dadesCollaCollection = buildCollection<DadesColla>({
   name: "Dades Colla",
@@ -266,7 +372,7 @@ const juntaCollection = buildCollection<Junta>({
         cap: "Cap de colla",
         administrativa: "Junta administrativa",
         tecnica: "Junta tècnica",
-      }
+      },
     }),
     carrec: {
       name: "Càrrec",
@@ -276,132 +382,6 @@ const juntaCollection = buildCollection<Junta>({
   },
 });
 
-/* const productsCollection = buildCollection<Product>({
-  name: "Products",
-  singularName: "Product",
-  path: "products",
-  permissions: ({ authController }) => ({
-    edit: true,
-    create: true,
-    // we have created the roles object in the navigation builder
-    delete: false,
-  }),
-//  subcollections: [localeCollection],
-  properties: {
-    name: {
-      name: "Name",
-      validation: { required: true },
-      dataType: "string",
-    },
-    price: {
-      name: "Price",
-      validation: {
-        required: true,
-        requiredMessage: "You must set a price between 0 and 1000",
-        min: 0,
-        max: 1000,
-      },
-      description: "Price with range validation",
-      dataType: "number",
-    },
-    status: {
-      name: "Status",
-      validation: { required: true },
-      dataType: "string",
-      description: "Should this product be visible in the website",
-      longDescription:
-        "Example of a long description hidden under a tooltip. Lorem ipsum dolor sit amet, consectetur adipiscing elit. Proin quis bibendum turpis. Sed scelerisque ligula nec nisi pellentesque, eget viverra lorem facilisis. Praesent a lectus ac ipsum tincidunt posuere vitae non risus. In eu feugiat massa. Sed eu est non velit facilisis facilisis vitae eget ante. Nunc ut malesuada erat. Nullam sagittis bibendum porta. Maecenas vitae interdum sapien, ut aliquet risus. Donec aliquet, turpis finibus aliquet bibendum, tellus dui porttitor quam, quis pellentesque tellus libero non urna. Vestibulum maximus pharetra congue. Suspendisse aliquam congue quam, sed bibendum turpis. Aliquam eu enim ligula. Nam vel magna ut urna cursus sagittis. Suspendisse a nisi ac justo ornare tempor vel eu eros.",
-      enumValues: {
-        private: "Private",
-        public: "Public",
-      },
-    },
-    published: ({ values }) =>
-      buildProperty({
-        name: "Published",
-        dataType: "boolean",
-        columnWidth: 100,
-        disabled:
-          values.status === "public"
-            ? false
-            : {
-                clearOnDisabled: true,
-                disabledMessage:
-                  "Status must be public in order to enable this the published flag",
-              },
-      }),
-    related_products: {
-      dataType: "array",
-      name: "Related products",
-      description: "Reference to self",
-      of: {
-        dataType: "reference",
-        path: "products",
-      },
-    },
-    main_image: buildProperty({
-      // The `buildProperty` method is a utility function used for type checking
-      name: "Image",
-      dataType: "string",
-      storage: {
-        storagePath: "images",
-        acceptedFiles: ["image/*"],
-      },
-    }),
-    tags: {
-      name: "Tags",
-      description: "Example of generic array",
-      validation: { required: true },
-      dataType: "array",
-      of: {
-        dataType: "string",
-      },
-    },
-    description: {
-      name: "Description",
-      description: "Not mandatory but it'd be awesome if you filled this up",
-      longDescription:
-        "Example of a long description hidden under a tooltip. Lorem ipsum dolor sit amet, consectetur adipiscing elit. Proin quis bibendum turpis. Sed scelerisque ligula nec nisi pellentesque, eget viverra lorem facilisis. Praesent a lectus ac ipsum tincidunt posuere vitae non risus. In eu feugiat massa. Sed eu est non velit facilisis facilisis vitae eget ante. Nunc ut malesuada erat. Nullam sagittis bibendum porta. Maecenas vitae interdum sapien, ut aliquet risus. Donec aliquet, turpis finibus aliquet bibendum, tellus dui porttitor quam, quis pellentesque tellus libero non urna. Vestibulum maximus pharetra congue. Suspendisse aliquam congue quam, sed bibendum turpis. Aliquam eu enim ligula. Nam vel magna ut urna cursus sagittis. Suspendisse a nisi ac justo ornare tempor vel eu eros.",
-      dataType: "string",
-      columnWidth: 300,
-    },
-    categories: {
-      name: "Categories",
-      validation: { required: true },
-      dataType: "array",
-      of: {
-        dataType: "string",
-        enumValues: {
-          electronics: "Electronics",
-          books: "Books",
-          furniture: "Furniture",
-          clothing: "Clothing",
-          food: "Food",
-        },
-      },
-    },
-    publisher: {
-      name: "Publisher",
-      description: "This is an example of a map property",
-      dataType: "map",
-      properties: {
-        name: {
-          name: "Name",
-          dataType: "string",
-        },
-        external_id: {
-          name: "External id",
-          dataType: "string",
-        },
-      },
-    },
-    expires_on: {
-      name: "Expires on",
-      dataType: "date",
-    },
-  },
-});
- */
 const actuacionsCollection = buildCollection<Actuacions>({
   name: "Actuacions",
   singularName: "Actuacio",
@@ -442,9 +422,9 @@ const actuacionsCollection = buildCollection<Actuacions>({
       of: {
         dataType: "string",
       },
-    },    
+    },
     llista: {
-      name: "Lloc",
+      name: "Llista d'assistència",
       validation: { required: false },
       dataType: "string",
     },
@@ -468,27 +448,50 @@ const actuacionsCollection = buildCollection<Actuacions>({
 export default function App() {
   const myAuthenticator: Authenticator<FirebaseUser> = useCallback(
     async ({ user, authController }) => {
-      if (user?.email?.includes("flanders")) {
-        throw Error("Stupid Flanders!");
+       if (user?.email != undefined) {
+        const role:string = await getRoles(user?.email);
+        console.log(role);
+        if (role === "admin") {
+          authController.setExtra(role);
+          return true;
+        } else {
+          throw Error("No tens els permisos corresponents");
+        }
+      } else {
+        throw Error("Aquest usuari no existeix");
       }
+    }, 
 
-      console.log("Allowing access to", user?.email);
-      // This is an example of retrieving async data related to the user
-      // and storing it in the user extra field.
-      const sampleUserRoles = await Promise.resolve(["admin"]);
-      authController.setExtra(sampleUserRoles);
-
-      return true;
-    },
     []
   );
 
+   async function getRoles(email:string) {
+    const userRef = collection(db, "usuaris");
+    var data = "";
+
+    const q = query(userRef, where("email", "==", email));
+    const querySnapshot = await getDocs(q);
+    querySnapshot.forEach((doc) => {
+      data = doc.data().role;
+    });
+    return data;
+  }
+ 
   return (
     <div style={{ width: "100%", margin: "auto" }}>
       <FirebaseCMSApp
         name={"Matossers de Molins de Rei"}
         authentication={myAuthenticator}
-        collections={[dadesCollaCollection, actuacionsCollection, usuarisCollection, juntaCollection, musicsCollection]}
+        collections={[
+          dadesCollaCollection,
+          actuacionsCollection,
+          usuarisCollection,
+          juntaCollection,
+          musicsCollection,
+          recursCollection,
+          xatCollection,
+          socisCollection,
+        ]}
         firebaseConfig={firebaseConfig}
       />
     </div>
