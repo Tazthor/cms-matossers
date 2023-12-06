@@ -26,7 +26,7 @@ const firebaseConfig = {
   messagingSenderId: process.env.NEXT_PUBLIC_FIREBASE_messagingSenderId,
   appId: process.env.NEXT_PUBLIC_FIREBASE_appId,
   measurementId: process.env.NEXT_PUBLIC_FIREBASE_measurementId,
-}; 
+};
 
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
