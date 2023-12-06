@@ -18,14 +18,14 @@ import "typeface-rubik";
 import "@fontsource/ibm-plex-mono";
 
 const firebaseConfig = {
-  apiKey: "AIzaSyBGtJC973MQxS5V7ZISBHfjmZICFAxz4g4",
-  authDomain: "matossers.firebaseapp.com",
-  databaseURL: "https://matossers.firebaseio.com",
-  projectId: "matossers",
-  storageBucket: "matossers.appspot.com",
-  messagingSenderId: "76874283575",
-  appId: "1:76874283575:web:4995df3102552b0dde1db2",
-  measurementId: "G-Y1L5YSPM4B",
+  apiKey: process.env.NEXT_PUBLIC_FIREBASE_apiKey,
+  authDomain: process.env.NEXT_PUBLIC_FIREBASE_authDomain,
+  databaseURL: process.env.NEXT_PUBLIC_FIREBASE_databaseURL,
+  projectId: process.env.NEXT_PUBLIC_FIREBASE_projectId,
+  storageBucket: process.env.NEXT_PUBLIC_FIREBASE_storageBucket,
+  messagingSenderId: process.env.NEXT_PUBLIC_FIREBASE_messagingSenderId,
+  appId: process.env.NEXT_PUBLIC_FIREBASE_appId,
+  measurementId: process.env.NEXT_PUBLIC_FIREBASE_measurementId,
 };
 
 const app = initializeApp(firebaseConfig);
@@ -88,6 +88,19 @@ type Socis = {
   quota: number;
   url: string;
 };
+
+type SocisQueFarem = {
+  ordre: number;
+  icon: string;
+  item: string;
+};
+
+type SocisQueOferim = {
+  ordre: number;
+  icon: string;
+  item: string;
+};
+
 
 const socisCollection = buildCollection<Socis>({
   name: "Quotes de soci",
@@ -327,6 +340,95 @@ const dadesCollaCollection = buildCollection<DadesColla>({
   },
 });
 
+const socisQueFaremCollection = buildCollection<SocisQueFarem>({
+  name: "Socis Taula que farem",
+  singularName: "Dada",
+  path: "socisquefarem",
+  permissions: ({ authController }) => ({
+    edit: true,
+    create: true,
+    delete: true,
+  }),
+  properties: {
+    ordre: {
+      name: "Ordre",
+      validation: {
+        required: true,
+        min: 0,
+        max: 1000,
+      },
+      description: "Per ordenar le dades a la web",
+      dataType: "number",
+    },
+    icon: buildProperty({
+      dataType: "string",
+      name: "Image",
+      storage: {
+        mediaType: "image",
+        storagePath: "images/dades",
+        acceptedFiles: ["image/*"],
+        metadata: {
+          cacheControl: "max-age=1000000",
+        },
+      },
+      description: "Puja la icona",
+      validation: {
+        required: true,
+      },
+    }),
+    item: {
+      name: "Títol",
+      validation: { required: true },
+      dataType: "string",
+    },
+  },
+});
+
+const socisQueOferimCollection = buildCollection<SocisQueOferim>({
+  name: "Socis Taula que oferim",
+  singularName: "Dada",
+  path: "socisqueoferim",
+  permissions: ({ authController }) => ({
+    edit: true,
+    create: true,
+    delete: true,
+  }),
+  properties: {
+    ordre: {
+      name: "Ordre",
+      validation: {
+        required: true,
+        min: 0,
+        max: 1000,
+      },
+      description: "Per ordenar le dades a la web",
+      dataType: "number",
+    },
+    icon: buildProperty({
+      dataType: "string",
+      name: "Image",
+      storage: {
+        mediaType: "image",
+        storagePath: "images/dades",
+        acceptedFiles: ["image/*"],
+        metadata: {
+          cacheControl: "max-age=1000000",
+        },
+      },
+      description: "Puja la icona",
+      validation: {
+        required: true,
+      },
+    }),
+    item: {
+      name: "Títol",
+      validation: { required: true },
+      dataType: "string",
+    },
+  },
+});
+
+
 const juntaCollection = buildCollection<Junta>({
   name: "Juntes",
   singularName: "junta",
@@ -489,8 +591,10 @@ export default function App() {
           juntaCollection,
           musicsCollection,
           recursCollection,
-          xatCollection,
+          //xatCollection,
           socisCollection,
+          socisQueFaremCollection,
+          socisQueOferimCollection
         ]}
         firebaseConfig={firebaseConfig}
       />
