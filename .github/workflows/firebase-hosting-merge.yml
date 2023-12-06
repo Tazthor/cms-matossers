@@ -11,6 +11,7 @@ jobs:
     environment: ${{ github.ref_name }}
     steps:
       - uses: actions/checkout@v2
+      - run: yarn install
       - run:  |
           touch .env.local
           echo NEXT_PUBLIC_FIREBASE_apiKey=${{ vars.FIREBASE_API_KEY }} >> .env.local
