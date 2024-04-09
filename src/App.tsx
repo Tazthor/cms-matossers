@@ -149,7 +149,7 @@ const socisCollection = buildCollection<Socis>({
   },
 });
 
-const xatCollection = buildCollection<Xat>({
+/* const xatCollection = buildCollection<Xat>({
   name: "Xat",
   singularName: "Xat",
   path: "xat",
@@ -178,7 +178,7 @@ const xatCollection = buildCollection<Xat>({
     },
   },
 });
-
+ */
 const recursCollection = buildCollection<Recurs>({
   name: "Recursos",
   singularName: "Recurs",
