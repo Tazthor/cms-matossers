@@ -26,6 +26,18 @@ jobs:
           echo NEXT_PUBLIC_FIREBASE_appId=${{ vars.FIREBASE_APP_ID }} >> .env.local
           echo NEXT_PUBLIC_FIREBASE_measurementId=${{ vars.FIREBASE_MEASUREMENT_ID }} >> .env.local
           cat .env.local
+                    
+      - name: Find-and-replace strings
+        uses: mad9000/actions-find-and-replace-string@5
+        id: findandreplaceApiKey
+        with:
+          source: ${{ github.ref }}
+          find: 'process.env.NEXT_PUBLIC_FIREBASE_apiKey'
+          replace: '"${{ vars.FIREBASE_API_KEY }}"'
+
+      - name: Get the above output
+        run: echo "The replaced value is ${{ steps.findandreplaceApiKey.outputs.value }}"
+
       - run: yarn build
       - uses: FirebaseExtended/action-hosting-deploy@v0
         with:
