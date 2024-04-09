@@ -27,13 +27,13 @@ jobs:
           echo NEXT_PUBLIC_FIREBASE_measurementId=${{ vars.FIREBASE_MEASUREMENT_ID }} >> .env.local
           cat .env.local
                     
-      - name: Find-and-replace strings
-        uses: mad9000/actions-find-and-replace-string@5
-        id: findandreplaceApiKey
+      - name: Find and Replace FIREBASE_API_KEY
+        uses: jacobtomlinson/gha-find-replace@v3
         with:
-          source: ${{ github.ref }}
+          regex: false
           find: 'process.env.NEXT_PUBLIC_FIREBASE_apiKey'
           replace: '"${{ vars.FIREBASE_API_KEY }}"'
+          include: "**App.tsx"
 
       - name: Get the above output
         run: echo "The replaced value is ${{ steps.findandreplaceApiKey.outputs.value }}"
