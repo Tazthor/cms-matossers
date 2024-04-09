@@ -15,17 +15,6 @@ jobs:
     steps:
       - uses: actions/checkout@v2
       - run: yarn install
-      - run:  |
-          touch .env.local
-          echo NEXT_PUBLIC_FIREBASE_apiKey=${{ vars.FIREBASE_API_KEY }} >> .env.local
-          echo NEXT_PUBLIC_FIREBASE_authDomain=${{ vars.FIREBASE_AUTH_DOMAIN }} >> .env.local
-          echo NEXT_PUBLIC_FIREBASE_databaseURL=${{ vars.FIREBASE_DATABASE_URL }} >> .env.local
-          echo NEXT_PUBLIC_FIREBASE_projectId=${{ vars.FIREBASE_PROJECT_ID }} >> .env.local
-          echo NEXT_PUBLIC_FIREBASE_storageBucket=${{ vars.FIREBASE_STORAGE_BUCKET }} >> .env.local
-          echo NEXT_PUBLIC_FIREBASE_messagingSenderId=${{ vars.FIREBASE_MESSAGING_SENDER_ID }} >> .env.local
-          echo NEXT_PUBLIC_FIREBASE_appId=${{ vars.FIREBASE_APP_ID }} >> .env.local
-          echo NEXT_PUBLIC_FIREBASE_measurementId=${{ vars.FIREBASE_MEASUREMENT_ID }} >> .env.local
-          cat .env.local
                     
       - name: Find and Replace FIREBASE_API_KEY
         uses: jacobtomlinson/gha-find-replace@v3
@@ -35,8 +24,61 @@ jobs:
           replace: '"${{ vars.FIREBASE_API_KEY }}"'
           include: "**App.tsx"
 
-      - name: Get the above output
-        run: echo "The replaced value is ${{ steps.findandreplaceApiKey.outputs.value }}"
+      - name: Find and Replace FIREBASE_AUTH_DOMAIN
+        uses: jacobtomlinson/gha-find-replace@v3
+        with:
+          regex: false
+          find: 'process.env.NEXT_PUBLIC_FIREBASE_authDomain'
+          replace: '"${{ vars.FIREBASE_AUTH_DOMAIN }}"'
+          include: "**App.tsx"      
+
+      - name: Find and Replace FIREBASE_DATABASE_URL
+        uses: jacobtomlinson/gha-find-replace@v3
+        with:
+          regex: false
+          find: 'process.env.NEXT_PUBLIC_FIREBASE_databaseURL'
+          replace: '"${{ vars.FIREBASE_DATABASE_URL }}"'
+          include: "**App.tsx"
+
+      - name: Find and Replace FIREBASE_PROJECT_ID
+        uses: jacobtomlinson/gha-find-replace@v3
+        with:
+          regex: false
+          find: 'process.env.NEXT_PUBLIC_FIREBASE_projectId'
+          replace: '"${{ vars.FIREBASE_PROJECT_ID }}"'
+          include: "**App.tsx"
+
+      - name: Find and Replace FIREBASE_STORAGE_BUCKET
+        uses: jacobtomlinson/gha-find-replace@v3
+        with:
+          regex: false
+          find: 'process.env.NEXT_PUBLIC_FIREBASE_storageBucket'
+          replace: '"${{ vars.FIREBASE_STORAGE_BUCKET }}"'
+          include: "**App.tsx"
+
+      - name: Find and Replace FIREBASE_MESSAGING_SENDER_ID
+        uses: jacobtomlinson/gha-find-replace@v3
+        with:
+          regex: false
+          find: 'process.env.NEXT_PUBLIC_FIREBASE_messagingSenderId'
+          replace: '"${{ vars.FIREBASE_MESSAGING_SENDER_ID }}"'
+          include: "**App.tsx"      
+
+      - name: Find and Replace FIREBASE_APP_ID
+        uses: jacobtomlinson/gha-find-replace@v3
+        with:
+          regex: false
+          find: 'process.env.NEXT_PUBLIC_FIREBASE_appId'
+          replace: '"${{ vars.FIREBASE_APP_ID }}"'
+          include: "**App.tsx"
+
+      - name: Find and Replace FIREBASE_MEASUREMENT_ID
+        uses: jacobtomlinson/gha-find-replace@v3
+        with:
+          regex: false
+          find: 'process.env.NEXT_PUBLIC_FIREBASE_measurementId'
+          replace: '"${{ vars.FIREBASE_MEASUREMENT_ID }}"'
+          include: "**App.tsx"
 
       - run: yarn build
       - uses: FirebaseExtended/action-hosting-deploy@v0
