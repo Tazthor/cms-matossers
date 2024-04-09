@@ -280,6 +280,7 @@ const musicsCollection = buildCollection<Musics>({
       dataType: "string",
       name: "Imatge",
       storage: {
+        storeUrl: true,
         mediaType: "image",
         storagePath: "images/pages",
         acceptedFiles: ["image/*"],
