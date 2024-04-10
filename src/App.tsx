@@ -64,6 +64,13 @@ type Musics = {
   image: string;
 };
 
+type Assajos = {
+  horaridc: string;
+  horaridv: string;
+  text: string;
+  image: string;
+};
+
 type Xat = {
   nom: string;
   data: Date;
@@ -274,6 +281,50 @@ const musicsCollection = buildCollection<Musics>({
     text: buildProperty({
       dataType: "string",
       name: "Text",
+      markdown: true,
+      validation: { required: true },
+    }),
+    image: buildProperty({
+      dataType: "string",
+      name: "Imatge",
+      storage: {
+        storeUrl: true,
+        mediaType: "image",
+        storagePath: "images/pages",
+        acceptedFiles: ["image/*"],
+        metadata: {
+          cacheControl: "max-age=1000000",
+        },
+      },
+    }),
+  },
+});
+
+const assajosCollection = buildCollection<Assajos>({
+  name: "Pàgina d'assajos",
+  singularName: "assaig",
+  path: "assajos",
+  permissions: ({ authController }) => ({
+    edit: true,
+    create: false,
+    delete: false,
+  }),
+  properties: {
+    horaridc: buildProperty({
+      dataType: "string",
+      name: "Horari dimecres",
+      markdown: true,
+      validation: { required: true },
+    }),
+    horaridv: buildProperty({
+      dataType: "string",
+      name: "Horari divendres",
+      markdown: true,
+      validation: { required: true },
+    }),
+    text: buildProperty({
+      dataType: "string",
+      name: "Text on assagem",
       markdown: true,
       validation: { required: true },
     }),
@@ -595,6 +646,7 @@ export default function App() {
           actuacionsCollection,
           usuarisCollection,
           juntaCollection,
+          assajosCollection,
           musicsCollection,
           recursCollection,
           //xatCollection,
