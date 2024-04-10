@@ -213,6 +213,7 @@ const recursCollection = buildCollection<Recurs>({
       dataType: "string",
       name: "Document",
       storage: {
+        storeUrl: true,
         mediaType: "image",
         storagePath: "docs/",
       },
@@ -316,6 +317,7 @@ const dadesCollaCollection = buildCollection<DadesColla>({
       dataType: "string",
       name: "Image",
       storage: {
+        storeUrl: true,
         mediaType: "image",
         storagePath: "images/dades",
         acceptedFiles: ["image/*"],
@@ -365,6 +367,7 @@ const socisQueFaremCollection = buildCollection<SocisQueFarem>({
       dataType: "string",
       name: "Image",
       storage: {
+        storeUrl: true,
         mediaType: "image",
         storagePath: "images/dades",
         acceptedFiles: ["image/*"],
@@ -409,6 +412,7 @@ const socisQueOferimCollection = buildCollection<SocisQueOferim>({
       dataType: "string",
       name: "Image",
       storage: {
+        storeUrl: true,
         mediaType: "image",
         storagePath: "images/dades",
         acceptedFiles: ["image/*"],
@@ -454,6 +458,7 @@ const juntaCollection = buildCollection<Junta>({
       dataType: "string",
       name: "Image",
       storage: {
+        storeUrl: true,
         mediaType: "image",
         storagePath: "images/junta",
         acceptedFiles: ["image/*"],
