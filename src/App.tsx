@@ -306,7 +306,7 @@ const assajosCollection = buildCollection<Assajos>({
   path: "assajos",
   permissions: ({ authController }) => ({
     edit: true,
-    create: false,
+    create: true,
     delete: false,
   }),
   properties: {
