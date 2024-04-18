@@ -573,6 +573,7 @@ const actuacionsCollection = buildCollection<Actuacions>({
       },
       dataType: "date",
     },
+    
     colles: {
       name: "Colles",
       description: "Colles array",
@@ -580,6 +581,10 @@ const actuacionsCollection = buildCollection<Actuacions>({
       dataType: "array",
       of: {
         dataType: "string",
+        enumValues: {
+          "es": "Spanish",
+          "en": "English",
+          }
       },
     },
     llista: {
