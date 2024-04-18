@@ -581,10 +581,6 @@ const actuacionsCollection = buildCollection<Actuacions>({
       dataType: "array",
       of: {
         dataType: "string",
-        enumValues: {
-          "es": "Spanish",
-          "en": "English",
-          }
       },
     },
     llista: {
