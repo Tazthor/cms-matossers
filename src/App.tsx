@@ -604,7 +604,6 @@ export default function App() {
 
   async function checkUserExists(uid: string): Promise<boolean> {
   try {
-    // Si l'UID de l'usuari és l'ID del document:
     const userRef = doc(db, "usuaris", uid);
     const docSnap = await getDoc(userRef);
 
@@ -630,6 +629,7 @@ const myAuthenticator: Authenticator<FirebaseUser> = useCallback(
     const exists = await checkUserExists(user.uid);
 
     if (exists) {
+      authController.setExtra("admin");
       return true;
     } else {
       throw Error("Aquest usuari no està autoritzat al CMS.");
