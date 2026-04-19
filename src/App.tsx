@@ -5,17 +5,12 @@ import {
   Authenticator,
   buildCollection,
   buildProperty,
-  EntityReference,
   FirebaseCMSApp,
-  MarkdownProps,
 } from "firecms";
 
-import { collection, query, where, getDocs } from "firebase/firestore";
+import { doc, getDoc } from "firebase/firestore";
 import { initializeApp } from "firebase/app";
 import { getFirestore } from "firebase/firestore";
-
-import "typeface-rubik";
-import "@fontsource/ibm-plex-mono";
 
 const firebaseConfig = {
   apiKey: process.env.NEXT_PUBLIC_FIREBASE_apiKey,
@@ -606,37 +601,43 @@ const actuacionsCollection = buildCollection<Actuacions>({
 });
 
 export default function App() {
-  const myAuthenticator: Authenticator<FirebaseUser> = useCallback(
-    async ({ user, authController }) => {
-       if (user?.email != undefined) {
-        const role:string = await getRoles(user?.email);
-        console.log(role);
-        if (role === "admin") {
-          authController.setExtra(role);
-          return true;
-        } else {
-          throw Error("No tens els permisos corresponents");
-        }
-      } else {
-        throw Error("Aquest usuari no existeix");
-      }
-    }, 
 
-    []
-  );
+  async function checkUserExists(uid: string): Promise<boolean> {
+  try {
+    // Si l'UID de l'usuari és l'ID del document:
+    const userRef = doc(db, "usuaris", uid);
+    const docSnap = await getDoc(userRef);
 
-   async function getRoles(email:string) {
-    const userRef = collection(db, "usuaris");
-    var data = "";
+    if (docSnap.exists()) {
+      return true;
+    }
 
-    const q = query(userRef, where("email", "==", email));
-    const querySnapshot = await getDocs(q);
-    querySnapshot.forEach((doc) => {
-      data = doc.data().role;
-    });
-    return data;
+    return false;
+  } catch (error) {
+    console.error("Error comprovant l'usuari a Firestore:", error);
+    return false;
   }
- 
+}
+
+const myAuthenticator: Authenticator<FirebaseUser> = useCallback(
+  async ({ user, authController }) => {
+    if (!user?.uid) {
+      throw Error("No s'ha pogut obtenir l'UID de l'usuari.");
+    }
+
+    console.log("Comprovant existència per UID:", user.uid);
+    
+    const exists = await checkUserExists(user.uid);
+
+    if (exists) {
+      return true;
+    } else {
+      throw Error("Aquest usuari no està autoritzat al CMS.");
+    }
+  },
+  []
+);
+
   return (
     <div style={{ width: "100%", margin: "auto" }}>
       <FirebaseCMSApp
